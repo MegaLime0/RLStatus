@@ -4,11 +4,11 @@ public static class Loader
 {
     public static string DiscordToken(string path = ".discord_token")
     {
-        return File.ReadAllText(path);
+        return File.ReadAllText(path).Trim();
     }
 
     public static string SteamWebAPI(string path = ".steam_api")
     {
-        return File.ReadAllText(path);
+        return File.ReadAllText(path).Trim();
     }
 }
