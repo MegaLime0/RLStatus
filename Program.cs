@@ -5,14 +5,9 @@ namespace RLStatus;
 
 public class Program
 {
-    static string GetToken(string TokenName = ".discord_token")
-    {
-        return File.ReadAllText(TokenName);
-    }
-
     static async Task Main()
     {
-        string _token = GetToken();
+        string _token = Loader.DiscordToken();
         DiscordConfiguration conf = new() 
         {
             Token = _token,
@@ -32,6 +27,8 @@ public class Program
         client.Ready += EventHandlers.OnReady;
         client.MessageCreated += EventHandlers.OnMessage;
 
+        Query q = Query.Instance;
+        await q.SteamUserId("megalime0");
         await Task.Delay(-1);
     }
 }
