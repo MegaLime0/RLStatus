@@ -5,7 +5,7 @@ namespace RLStatus;
 
 public class Program
 {
-    static string GetToken(string TokenName = ".token")
+    static string GetToken(string TokenName = ".discord_token")
     {
         return File.ReadAllText(TokenName);
     }
