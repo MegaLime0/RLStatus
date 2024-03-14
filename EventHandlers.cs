@@ -8,8 +8,8 @@ static public class EventHandlers
     static public Task OnReady(DiscordClient client, ReadyEventArgs args)
     {
         Console.WriteLine(
-                $"Client {client.CurrentUser.Username}#{client.CurrentUser.Discriminator}" + 
-                "Successfully Connected");
+                $"Client {client.CurrentUser.Username}#{client.CurrentUser.Discriminator}" 
+                + " Successfully Connected");
         return Task.CompletedTask;
     }
 
