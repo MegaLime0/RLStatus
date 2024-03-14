@@ -6,12 +6,19 @@ public sealed class Database
 {
     private static Database? instance = null;
     private static Object lockObject = new();
+    private static string _path = "data.sqlite";
 
     private SqliteConnection connection;
 
-    private Database(string path = "data.sqlite")
+    private Database()
     {
-        connection = new($"Data Source={path}");
+        connection = new($"Data Source={_path}");
+    }
+
+    private static void GenerateFile()
+    {
+        // TODO: Create Database file and
+        // poppulate it with tables
     }
 
     public static Database Instance
@@ -20,6 +27,11 @@ public sealed class Database
         {
             lock (lockObject)
             {
+                if (!File.Exists(_path))
+                {
+                    GenerateFile();
+                }
+
                 if (instance == null)
                 {
                     instance = new();
@@ -44,5 +56,11 @@ public sealed class Database
     {
         // TODO: Implement a Stats class and cache the results
         // p.s. the results should include a time
+    }
+
+    public void RetreiveStats()
+    {
+        // TODO: Should require a stats class
+        // (it doesnt exist yet
     }
 }
