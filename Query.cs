@@ -39,19 +39,27 @@ public sealed class Query
     public async Task<long> SteamUserId(string vanityUrl)
     {
         string url = _steam_api + vanityUrl;
-        HttpResponseMessage response = await client.GetAsync(url);
+        string response = await Get(url);
 
-        if (!response.IsSuccessStatusCode)
-        {
-            Console.WriteLine(response.StatusCode);
-            return 0;
-        }
-
-        JsonNode output = JsonNode.Parse(await response.Content.ReadAsStringAsync())!["response"]!;
+        JsonNode output = JsonNode.Parse(response)!["response"]!;
         long userId = Convert.ToInt64(output["steamid"]!.ToString());
         
         Console.WriteLine($"Queried: {vanityUrl}, userId: {userId}");
         Console.WriteLine(output);
-        return 0;
+
+        return userId;
+    }
+
+
+    private async Task<string> Get(string url)
+    {
+        HttpResponseMessage response = await client.GetAsync(url);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return "Error";
+        }
+
+        return (await response.Content.ReadAsStringAsync());
     }
 }
