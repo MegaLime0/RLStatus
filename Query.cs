@@ -36,8 +36,6 @@ public sealed class Query
         }
     }
 
-    // TODO: Handle fails and add a separate function
-    // to extract the important part of a vanity url
     public async Task<long> SteamUserId(string vanityUrl)
     {
         var (result, type) = Extractor.SteamUrl(vanityUrl);
@@ -52,7 +50,15 @@ public sealed class Query
             string url = _steam_api + result;
             string response = await GetPageString(url);
 
-            JsonNode output = JsonNode.Parse(response)!["response"]!;
+            JsonNode output = JsonNode.Parse(response)!["response"]!; 
+            int success = (int)output["success"]!;
+
+            if (success != 1)
+            {
+                Console.WriteLine($"Steam WebApi Failed For: {result}");
+                return -1;
+            }
+
             string userId = (string)output["steamid"]!;
 
             Console.WriteLine($"Queried: {result}, userId: {userId}");
