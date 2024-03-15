@@ -22,8 +22,8 @@ public class SlashCommands : ApplicationCommandModule
 
     [SlashCommand("setacc", "Set your RL account")]
     public async Task SetAcc(InteractionContext ctx,
-        [Option("Username", "RL account name")] string username,
-        [Option("Platform", "Select your RL platform")] Platforms platform = Platforms.EpicGames)
+            [Option("Username", "RL account name")] string username,
+            [Option("Platform", "Select your RL platform")] Platforms platform = Platforms.EpicGames)
     {
         Console.WriteLine($"Command: setacc, Platform: {platform}");
 
@@ -47,5 +47,11 @@ public class SlashCommands : ApplicationCommandModule
         Console.WriteLine($"Requested Context by {ctx.User.Username}");
         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder().WithContent("Works"));
+    }
+
+    [SlashCommand("help", "Usage instructions")]
+    public async Task Help(InteractionContext ctx)
+    {
+        // TODO: Add help string
     }
 }
