@@ -6,20 +6,6 @@ namespace RLStatus;
 
 public class SlashCommands : ApplicationCommandModule 
 {
-    public enum Platforms
-    {
-        [ChoiceName("Steam")]
-        Steam,
-        [ChoiceName("Epic Games")]
-        EpicGames,
-        [ChoiceName("Xbox")]
-        Xbox,
-        [ChoiceName("PlayStation")]
-        PlayStation,
-        [ChoiceName("Nintendo Switch")]
-        NintendoSwitch,
-    }
-
     [SlashCommand("setacc", "Set your RL account")]
     public async Task SetAcc(InteractionContext ctx,
             [Option("Username", "RL account name")] string username,
