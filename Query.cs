@@ -36,22 +36,33 @@ public sealed class Query
         }
     }
 
+    // TODO: Handle fails and add a separate function
+    // to extract the important part of a vanity url
     public async Task<long> SteamUserId(string vanityUrl)
     {
-        string url = _steam_api + vanityUrl;
-        string response = await Get(url);
+        var (result, type) = Extractor.SteamUrl(vanityUrl);
 
-        JsonNode output = JsonNode.Parse(response)!["response"]!;
-        long userId = Convert.ToInt64(output["steamid"]!.ToString());
-        
-        Console.WriteLine($"Queried: {vanityUrl}, userId: {userId}");
-        Console.WriteLine(output);
+        if (type == UrlType.Id)
+        {
+            Console.WriteLine($"Id From Direct Link: {result}");
+            return Convert.ToInt64(result);
+        }
+        else
+        {
+            string url = _steam_api + result;
+            string response = await GetPageString(url);
 
-        return userId;
+            JsonNode output = JsonNode.Parse(response)!["response"]!;
+            string userId = (string)output["steamid"]!;
+
+            Console.WriteLine($"Queried: {result}, userId: {userId}");
+            Console.WriteLine(output);
+
+            return Convert.ToInt64(userId);
+        }
     }
 
-
-    private async Task<string> Get(string url)
+    private async Task<string> GetPageString(string url)
     {
         HttpResponseMessage response = await client.GetAsync(url);
 
