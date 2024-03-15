@@ -7,11 +7,11 @@ public enum Platforms
     [ChoiceName("Steam")]
     Steam,
     [ChoiceName("Epic Games")]
-    EpicGames,
+    Epic,
     [ChoiceName("Xbox")]
-    Xbox,
+    XBL,
     [ChoiceName("PlayStation")]
-    PlayStation,
+    PSn,
     [ChoiceName("Nintendo Switch")]
-    NintendoSwitch,
+    Switch,
 }

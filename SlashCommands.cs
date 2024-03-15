@@ -9,7 +9,7 @@ public class SlashCommands : ApplicationCommandModule
     [SlashCommand("setacc", "Set your RL account")]
     public async Task SetAcc(InteractionContext ctx,
             [Option("Username", "RL account name")] string username,
-            [Option("Platform", "Select your RL platform")] Platforms platform = Platforms.EpicGames)
+            [Option("Platform", "Select your RL platform")] Platforms platform = Platforms.Epic)
     {
         Console.WriteLine($"Command: setacc, Platform: {platform}");
 
