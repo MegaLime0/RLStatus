@@ -27,8 +27,6 @@ public class Program
         client.Ready += EventHandlers.OnReady;
         client.MessageCreated += EventHandlers.OnMessage;
 
-        Query q = Query.Instance;
-        await q.SteamUserId("megalime0");
         await Task.Delay(-1);
     }
 }
