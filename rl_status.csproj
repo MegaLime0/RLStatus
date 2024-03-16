@@ -12,6 +12,7 @@
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.4.6" />
     <PackageReference Include="DSharpPlus.SlashCommands" Version="4.4.6" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0-preview.2.24128.4" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.18.1" />
   </ItemGroup>
 
 </Project>
