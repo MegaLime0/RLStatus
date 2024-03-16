@@ -10,6 +10,7 @@ namespace RLStatus;
 public sealed class Query
 {
     private static Query? instance = null;
+    private static Object lockObject = new();
     private const string _rl_api = "https://api.tracker.gg/api/v2/rocket-league/standard/profile/";
     private static string _steam_api = "http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/"
                                         + $"?key={Loader.SteamWebAPI()}&vanityurl=";
@@ -44,6 +45,8 @@ public sealed class Query
         srv = FirefoxDriverService.CreateDefaultService();
         srv.SuppressInitialDiagnosticInformation = true;
         srv.LogLevel = FirefoxDriverLogLevel.Fatal;
+
+        driver = new FirefoxDriver(srv, opts);
     }
 
     public static Query Instance
@@ -62,17 +65,26 @@ public sealed class Query
     {
         string url = _steam_api + vanityName;
         string response = await GetPageString(url);
-
-        JsonNode output = JsonNode.Parse(response)!["response"]!;
-        int success = (int)output["success"]!;
-
-        if (success != 1)
+        Console.WriteLine("Time to query");
+        string userId;
+        JsonElement output;
+        using (JsonDocument dez = JsonDocument.Parse(response))
         {
-            Console.WriteLine($"Steam WebApi Failed For: {vanityName}");
-            return "Failed";
-        }
+            output = dez
+                .RootElement
+                .GetProperty("response");
+                
 
-        string userId = (string)output["steamid"]!;
+            int success = output.GetProperty("success").GetInt32();
+
+            if (success != 1)
+            {
+                Console.WriteLine($"Steam WebApi Failed For: {vanityName}");
+                return "Failed";
+            }
+
+            userId = output.GetProperty("steamid").GetString()!;
+        }
 
         Console.WriteLine($"Queried: {vanityName}, userId: {userId}");
         Console.WriteLine(output);
@@ -83,7 +95,7 @@ public sealed class Query
     public async Task<long> SteamUserId(string vanityUrl)
     {
         var (result, type) = Extractor.SteamUrl(vanityUrl);
-
+        Console.WriteLine("Past extractor");
         if (result == "Failed")
         {
             return -1;
@@ -95,7 +107,7 @@ public sealed class Query
         }
         else
         {
-            string possibleId = await QueryVanityName(vanityUrl);
+            string possibleId = await QueryVanityName(result);
             if (possibleId == "Failed")
             {
                 return -1;
@@ -110,19 +122,32 @@ public sealed class Query
         string url = _rl_api + platform.ToString().ToLower() + "/" + identifier;
         Console.WriteLine(url);
         string response = await GetPageString(url, true);
+        if (response == "Error")
+        {
+            Console.WriteLine($"Error trying to query {identifier}");
+        }
+        Console.WriteLine($"got response for {identifier}");
+        File.WriteAllText("Debug.json", response);
 
-        Stats stats = Parser.GetStats(response);
-        return stats;
+        Stats? stats = Parser.GetStats(response);
+        if (stats == null)
+        {
+            Console.WriteLine("Stats returned null");
+        }
+        return stats!;
     }
 
     private async Task<string> GetPageString(string url, bool isStats = false)
     {
         if (isStats)
         {
-            driver = new FirefoxDriver(srv, opts);
-
-            driver!.Navigate().GoToUrl(url);
-            string src = driver.FindElement(By.TagName("pre")).Text;
+            string src;
+            lock (lockObject)
+            {
+                driver!.Navigate().GoToUrl(url);
+            
+                src = driver.FindElement(By.TagName("pre")).Text;
+            }
 
             if (String.IsNullOrEmpty(src))
             {
