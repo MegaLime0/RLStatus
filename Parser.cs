@@ -80,8 +80,7 @@ public static class Parser
                             plist = Playlists.Snowday;
                             break;
                         default:
-                            plist = Playlists.Casual;
-                            break;
+                            continue;
                     }
                     modes.Add(plist, GetMode(segment.GetProperty("stats"), plist));
                 }
