@@ -111,7 +111,7 @@ public sealed class Query
         Console.WriteLine(url);
         string response = await GetPageString(url, true);
 
-        Stats stats = new(response);
+        Stats stats = Parser.GetStats(response);
         return stats;
     }
 
