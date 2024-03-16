@@ -4,14 +4,14 @@ namespace RLStatus;
 
 public class Stats
 {
-    public Mode Casual { get; private set; }
-    public Mode Vs1 { get; private set; }
-    public Mode Vs2 { get; private set; }
-    public Mode Vs3 { get; private set; }
-    public Mode Hoops { get; private set; }
-    public Mode Rumble { get; private set; }
-    public Mode Dropshot { get; private set; }
-    public Mode Snowday { get; private set; }
+    public Mode? Casual { get; private set; }
+    public Mode?  Vs1 { get; private set; }
+    public Mode? Vs2 { get; private set; }
+    public Mode? Vs3 { get; private set; }
+    public Mode? Hoops { get; private set; }
+    public Mode? Rumble { get; private set; }
+    public Mode? Dropshot { get; private set; }
+    public Mode? Snowday { get; private set; }
 
     public uint Wins { get; private set; }
     public uint Goals { get; private set; }
