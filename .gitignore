@@ -5,8 +5,11 @@
 
 # dotenv files
 .env
+
+# tokens
 .discord_token
 .steam_api
+tokens.txt
 
 # User-specific files
 *.rsuser
