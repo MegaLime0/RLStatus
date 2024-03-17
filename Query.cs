@@ -1,9 +1,6 @@
-using System.Text.Json.Nodes;
 using System.Text.Json;
-using System.Net.Http.Headers;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
-using System;
 
 namespace RLStatus;
 
