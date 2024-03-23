@@ -6,7 +6,13 @@ namespace RLStatus;
 
 public class SlashCommands : ApplicationCommandModule 
 {
-    [SlashCommand("setacc", "Set your RL account")]
+    static DiscordClient? client;
+    public static void StoreClient(DiscordClient _client)
+    {
+        client = _client;
+    }
+
+    [SlashCommand("setup", "Set your RL account")]
     public async Task SetAcc(InteractionContext ctx,
             [Option("Username", "RL account name")] string username,
             [Option("Platform", "Select your RL platform")] Platforms platform = Platforms.Epic)
@@ -30,6 +36,11 @@ public class SlashCommands : ApplicationCommandModule
 
         // TODO: Add logic to get stats for rl username
 
+        // TODO: Change this response logic to wait a bit for the stats
+        // to get parsed and stored in the database
+
+        Query q = Query.Instance;
+        long balls = await q.SteamUserId("https://steamcommunity.com/id/MegaLime0");
         Console.WriteLine($"Requested Context by {ctx.User.Username}");
         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder().WithContent("Works"));
@@ -39,5 +50,16 @@ public class SlashCommands : ApplicationCommandModule
     public async Task Help(InteractionContext ctx)
     {
         // TODO: Add help string
+        
+        await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+        // IReadOnlyList<DiscordApplicationCommand> cmds = await ctx.Guild.GetApplicationCommandsAsync();
+        IReadOnlyList<DiscordApplicationCommand> cmds = await client!.GetGlobalApplicationCommandsAsync();
+        var builder = new DiscordWebhookBuilder().WithContent("Commands List\n");
+        foreach (DiscordApplicationCommand c in cmds)
+        {
+            builder.Content += $"</{c.Name}:{c.Id}>";
+        }
+        await ctx.EditResponseAsync(builder);
     }
 }
