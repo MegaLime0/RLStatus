@@ -4,6 +4,18 @@ namespace RLStatus;
 
 public static class Parser
 {
+    public static Date? GetDate(string input)
+    { 
+        ushort year, month, day, hour, minute;
+        year = Convert.ToUInt16(input.Substring(0, 4));
+        month = Convert.ToUInt16(input.Substring(5, 2));
+        day = Convert.ToUInt16(input.Substring(8, 2));
+        hour = Convert.ToUInt16(input.Substring(11, 2));
+        minute = Convert.ToUInt16(input.Substring(14, 2));
+        Date output = new(year, month, day, hour, minute);
+        return output;
+    }
+
     private static Mode GetMode(JsonElement stats, Playlists playlist)
     {
         uint mmr = stats.GetProperty("rating").GetProperty("value").GetUInt32();
@@ -28,7 +40,6 @@ public static class Parser
 
         return generics;
     }
-
     public static Stats? GetStats(string input)
     {
         using (JsonDocument document = JsonDocument.Parse(input))
@@ -41,8 +52,8 @@ public static class Parser
 
             JsonElement data = document.RootElement.GetProperty("data");
 
-            uint profViews= data.GetProperty("userInfo").GetProperty("pageviews").GetUInt32();
-
+            uint profViews = data.GetProperty("userInfo").GetProperty("pageviews").GetUInt32();
+            Date? date = GetDate(data.GetProperty("metadata").GetProperty("lastUpdated").GetProperty("value").GetString()!);
             JsonElement[] segments = data.GetProperty("segments").EnumerateArray().ToArray();
 
             Dictionary<GeneralStatTypes, uint> generics = new();
@@ -90,7 +101,7 @@ public static class Parser
                 }
             }
 
-            return new Stats(generics, modes);
+            return new Stats(generics, modes, date!);
         }
     }
 }
