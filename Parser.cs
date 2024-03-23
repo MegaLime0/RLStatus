@@ -54,6 +54,8 @@ public static class Parser
 
             uint profViews = data.GetProperty("userInfo").GetProperty("pageviews").GetUInt32();
             Date? date = GetDate(data.GetProperty("metadata").GetProperty("lastUpdated").GetProperty("value").GetString()!);
+            string? username = data.GetProperty("platformInfo").GetProperty("PlatformUserHandle").GetString();
+
             JsonElement[] segments = data.GetProperty("segments").EnumerateArray().ToArray();
 
             Dictionary<GeneralStatTypes, uint> generics = new();
@@ -101,7 +103,7 @@ public static class Parser
                 }
             }
 
-            return new Stats(generics, modes, date!);
+            return new Stats(generics, modes, date!, username!);
         }
     }
 }

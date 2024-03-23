@@ -4,6 +4,8 @@ namespace RLStatus;
 
 public class Stats
 {
+    public string Username { get; private set; }
+
     public Mode? Casual { get; private set; }
     public Mode? Vs1 { get; private set; }
     public Mode? Vs2 { get; private set; }
@@ -36,7 +38,10 @@ public class Stats
         RewardLevel = genericStats.GetProperty("seasonRewardLevel").GetProperty("value").GetUInt32();
     }
 
-    public Stats(Dictionary<GeneralStatTypes, uint> generics, Dictionary<Playlists, Mode> modes, Date date)
+    public Stats(Dictionary<GeneralStatTypes, uint> generics,
+            Dictionary<Playlists, Mode> modes,
+            Date date,
+            string username)
     {
         Wins = generics.GetValueOrDefault(GeneralStatTypes.Wins, (uint) 0);
         Goals = generics.GetValueOrDefault(GeneralStatTypes.Goals, (uint) 0);
@@ -57,5 +62,6 @@ public class Stats
         Snowday = modes.GetValueOrDefault(Playlists.Snowday);
 
         Date = date;
+        Username = username;
     }
 }
