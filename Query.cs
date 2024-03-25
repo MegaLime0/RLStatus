@@ -123,7 +123,7 @@ public sealed class Query : IDisposable
         }
     }
 
-    public async Task<Stats> GetStats(Platforms platform, string identifier)
+    public async Task<bool> AccountExists(Platforms platform, string identifier)
     {
         string url = _rl_api + platform.ToString().ToLower() + "/" + identifier;
         Console.WriteLine(url);
@@ -131,7 +131,38 @@ public sealed class Query : IDisposable
         if (response == "Error")
         {
             Console.WriteLine($"Error trying to query {identifier}");
+            return false;
         }
+
+        Console.WriteLine($"got response for {identifier}");
+        File.WriteAllText("Debug.json", response);
+
+        // If the response is an error
+        if (Parser.StatErrors(response))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public async Task<Stats?> GetStats(Platforms platform, string identifier, bool currentPage = false)
+    {
+        if (currentPage)
+        {
+            string page = GetCurrentPageSource();
+            return Parser.GetStats(page)!;
+        }
+
+        string url = _rl_api + platform.ToString().ToLower() + "/" + identifier;
+        Console.WriteLine(url);
+        string response = await GetPageString(url, true);
+        if (response == "Error")
+        {
+            Console.WriteLine($"Error trying to query {identifier}");
+            return null;
+        }
+
         Console.WriteLine($"got response for {identifier}");
         File.WriteAllText("Debug.json", response);
 
@@ -139,8 +170,9 @@ public sealed class Query : IDisposable
         if (stats == null)
         {
             Console.WriteLine("Stats returned null");
+            return null;
         }
-        return stats!;
+        return stats;
     }
 
     private async Task<string> GetPageString(string url, bool isStats = false)
@@ -172,5 +204,13 @@ public sealed class Query : IDisposable
         }
 
         return (await response.Content.ReadAsStringAsync());
+    }
+
+    private string GetCurrentPageSource()
+    {
+        lock(lockObject)
+        {
+            return driver!.PageSource;
+        }
     }
 }

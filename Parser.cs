@@ -34,13 +34,29 @@ public static class Parser
 
         return generics;
     }
-    public static Stats? GetStats(string input)
+
+    public static bool StatErrors(string input)
     {
         using (JsonDocument document = JsonDocument.Parse(input))
         {
             if (document.RootElement.TryGetProperty("errors", out _))
             {
                 Console.WriteLine("No Stats found");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    public static Stats? GetStats(string input)
+    {
+        using (JsonDocument document = JsonDocument.Parse(input))
+        {
+            if (StatErrors(input))
+            {
                 return null;
             }
 
