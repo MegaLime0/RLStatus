@@ -4,7 +4,7 @@ using OpenQA.Selenium.Firefox;
 
 namespace RLStatus;
 
-public sealed class Query
+public sealed class Query : IDisposable
 {
     private static Query? instance = null;
     private static Object lockObject = new();
@@ -46,6 +46,15 @@ public sealed class Query
         driver = new FirefoxDriver(srv, opts);
     }
 
+    public void Dispose()
+    {
+        driver!.Close();
+        driver.Dispose();
+        srv!.Dispose();
+        driver.Quit();
+        client.Dispose();
+    }
+
     public static Query Instance
     {
         get
@@ -70,7 +79,7 @@ public sealed class Query
             output = dez
                 .RootElement
                 .GetProperty("response");
-                
+
 
             int success = output.GetProperty("success").GetInt32();
 
@@ -142,7 +151,7 @@ public sealed class Query
             lock (lockObject)
             {
                 driver!.Navigate().GoToUrl(url);
-            
+
                 src = driver.FindElement(By.TagName("pre")).Text;
             }
 
