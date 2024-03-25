@@ -75,7 +75,7 @@ public sealed class Database
         }
     }
 
-    public void SaveAccount(string username, long userId, Platforms platform)
+    public void SaveAccount(string username, ulong userId, Platforms platform)
     {
         using (SqliteCommand cmd = connection.CreateCommand())
         {
@@ -144,7 +144,7 @@ public sealed class Database
         }
     }
 
-    public (string, string) GetAccount(long userId)
+    public (string, string) GetAccount(ulong userId)
     {
         string username, platform;
         using (SqliteCommand cmd = connection.CreateCommand())
@@ -168,7 +168,7 @@ public sealed class Database
         return (username, platform);
     }
 
-    public bool AccountExists(long userId)
+    public bool AccountExists(ulong userId)
     {
         using (SqliteCommand cmd = connection.CreateCommand())
         {
@@ -190,9 +190,8 @@ public sealed class Database
         }
     }
 
-    public Stats RetreiveStats(long userId)
+    public Stats RetreiveStats(ulong userId)
     {
-        // TODO
         using (SqliteCommand cmd = connection.CreateCommand())
         {
             cmd.CommandText = @"
