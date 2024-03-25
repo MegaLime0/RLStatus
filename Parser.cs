@@ -5,22 +5,16 @@ namespace RLStatus;
 public static class Parser
 {
     public static Date? GetDate(string input)
-    { 
-        ushort year, month, day, hour, minute;
-        year = Convert.ToUInt16(input.Substring(0, 4));
-        month = Convert.ToUInt16(input.Substring(5, 2));
-        day = Convert.ToUInt16(input.Substring(8, 2));
-        hour = Convert.ToUInt16(input.Substring(11, 2));
-        minute = Convert.ToUInt16(input.Substring(14, 2));
-        Date output = new(year, month, day, hour, minute);
+    {
+        Date output = new(input.Substring(0, 19));
         return output;
     }
 
     private static Mode GetMode(JsonElement stats, Playlists playlist)
     {
-        uint mmr = stats.GetProperty("rating").GetProperty("value").GetUInt32();
-        uint div = stats.GetProperty("division").GetProperty("value").GetUInt16() + (uint) 1;
-        Ranks rnk = (Ranks) (stats.GetProperty("tier").GetProperty("value").GetInt16() - 1);
+        int mmr = stats.GetProperty("rating").GetProperty("value").GetInt32();
+        int div = stats.GetProperty("division").GetProperty("value").GetInt32() + 1;
+        Ranks rnk = (Ranks)(stats.GetProperty("tier").GetProperty("value").GetInt32() - 1);
         Mode output = new(mmr, div, rnk, playlist);
 
         return output;
@@ -54,7 +48,7 @@ public static class Parser
 
             uint profViews = data.GetProperty("userInfo").GetProperty("pageviews").GetUInt32();
             Date? date = GetDate(data.GetProperty("metadata").GetProperty("lastUpdated").GetProperty("value").GetString()!);
-            string? username = data.GetProperty("platformInfo").GetProperty("PlatformUserHandle").GetString();
+            string? username = data.GetProperty("platformInfo").GetProperty("platformUserHandle").GetString();
 
             JsonElement[] segments = data.GetProperty("segments").EnumerateArray().ToArray();
 
@@ -68,28 +62,28 @@ public static class Parser
                     Playlists plist;
                     switch (segment.GetProperty("attributes").GetProperty("playlistId").GetUInt16())
                     {
-                        case (ushort) Playlists.Casual:
+                        case (ushort)Playlists.Casual:
                             plist = Playlists.Casual;
                             break;
-                        case (ushort) Playlists.Vs1:
+                        case (ushort)Playlists.Vs1:
                             plist = Playlists.Vs1;
                             break;
-                        case (ushort) Playlists.Vs2:
+                        case (ushort)Playlists.Vs2:
                             plist = Playlists.Vs2;
                             break;
-                        case (ushort) Playlists.Vs3:
+                        case (ushort)Playlists.Vs3:
                             plist = Playlists.Vs3;
                             break;
-                        case (ushort) Playlists.Hoops:
+                        case (ushort)Playlists.Hoops:
                             plist = Playlists.Hoops;
                             break;
-                        case (ushort) Playlists.Rumble:
+                        case (ushort)Playlists.Rumble:
                             plist = Playlists.Rumble;
                             break;
-                        case (ushort) Playlists.Dropshot:
+                        case (ushort)Playlists.Dropshot:
                             plist = Playlists.Dropshot;
                             break;
-                        case (ushort) Playlists.Snowday:
+                        case (ushort)Playlists.Snowday:
                             plist = Playlists.Snowday;
                             break;
                         default:
