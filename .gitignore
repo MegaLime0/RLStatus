@@ -10,6 +10,9 @@
 .discord_token
 .steam_api
 tokens.txt
+data.sqlite
+Debug.json
+Alt_Debug.json
 
 # User-specific files
 *.rsuser
