@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Data.Sqlite;
 
 namespace RLStatus;
@@ -36,7 +37,7 @@ public sealed class Database
                 CREATE TABLE IF NOT EXISTS Stats (
                         StatId INTEGER PRIMARY KEY AUTOINCREMENT,
                         DiscordId INTEGER NOT NULL,
-                        CacheDate TEXT NOT NULL,
+                        CacheDate INTEGER NOT NULL,
                         Wins INTEGER DEFAULT 0,
                         Goals INTEGER DEFAULT 0,
                         Saves INTEGER DEFAULT 0,
@@ -102,7 +103,7 @@ public sealed class Database
                 RETURNING StatId;
                 ";
             cmd.Parameters.AddWithValue("@DiscordId", userId);
-            cmd.Parameters.AddWithValue("@CacheDate", stats.Date.Raw);
+            cmd.Parameters.AddWithValue("@CacheDate", stats.Date.ToBinary());
             cmd.Parameters.AddWithValue("@Wins", stats.Wins);
             cmd.Parameters.AddWithValue("@Goals", stats.Goals);
             cmd.Parameters.AddWithValue("@Saves", stats.Saves);
@@ -190,8 +191,60 @@ public sealed class Database
         }
     }
 
-    public Stats RetreiveStats(ulong userId)
+    private bool AccountHasStats(ulong userId)
     {
+        using (SqliteCommand cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = @"SELECT COUNT(1) FROM Stats WHERE DiscordId = @DiscordId";
+            cmd.Parameters.AddWithValue("@DiscordId", userId);
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return 0 != reader.GetInt16(0);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    private bool CacheOutdated(ulong userId)
+    {
+        using (SqliteCommand cmd = connection.CreateCommand())
+        {
+            cmd.CommandText = @"SELECT CacheDate FROM Stats WHERE DiscordId = @DiscordId";
+            cmd.Parameters.AddWithValue("@DiscordId", userId);
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    var cacheDate = DateTime.FromBinary(reader.GetInt64(0));
+                    if (cacheDate.AddMinutes(10) <= DateTime.Now)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    public async Task<Stats?> RetreiveStats(ulong userId, Query query)
+    {
+        if (CacheOutdated(userId) || !AccountHasStats(userId))
+        {
+            (var _username, var _platform) = GetAccount(userId);
+            Platforms platform;
+            Enum.TryParse(_platform, out platform);
+            Stats? stats = await query.GetStats(platform, _username);
+            CacheStats(stats!, userId);
+            return stats;
+        }
+
         using (SqliteCommand cmd = connection.CreateCommand())
         {
             cmd.CommandText = @"
@@ -202,13 +255,14 @@ public sealed class Database
 
             Dictionary<GeneralStatTypes, uint> generics = new();
             Dictionary<Playlists, Mode> modes;
-            Date date;
+            DateTime date;
             string username;
             using (var reader = cmd.ExecuteReader())
             {
-                reader.Read(); // Not in an if statement, should be checked outside the function
+                // Not in an if statement, existance of an account should be checked outside the function
+                reader.Read();
                 modes = GetModes(reader.GetInt32(0));
-                date = new(reader.GetString(1));
+                date = DateTime.FromBinary(reader.GetInt64(1));
 
                 generics.Add(GeneralStatTypes.Wins, (uint)reader.GetInt32(2));
                 generics.Add(GeneralStatTypes.Goals, (uint)reader.GetInt32(3));

@@ -25,7 +25,7 @@ public class Stats
     public uint ProfileViews { get; private set; }
 
     public bool Success { get; private set; }
-    public Date Date { get; private set; }
+    public DateTime Date { get; private set; }
 
     private void AssignGeneric(JsonElement genericStats)
     {
@@ -40,7 +40,7 @@ public class Stats
 
     public Stats(Dictionary<GeneralStatTypes, uint> generics,
             Dictionary<Playlists, Mode> modes,
-            Date date,
+            DateTime date,
             string username)
     {
         Wins = generics.GetValueOrDefault(GeneralStatTypes.Wins, (uint) 0);

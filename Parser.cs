@@ -4,12 +4,6 @@ namespace RLStatus;
 
 public static class Parser
 {
-    public static Date? GetDate(string input)
-    {
-        Date output = new(input.Substring(0, 19));
-        return output;
-    }
-
     private static Mode GetMode(JsonElement stats, Playlists playlist)
     {
         int mmr = stats.GetProperty("rating").GetProperty("value").GetInt32();
@@ -63,7 +57,7 @@ public static class Parser
             JsonElement data = document.RootElement.GetProperty("data");
 
             uint profViews = data.GetProperty("userInfo").GetProperty("pageviews").GetUInt32();
-            Date? date = GetDate(data.GetProperty("metadata").GetProperty("lastUpdated").GetProperty("value").GetString()!);
+            DateTime date = DateTime.UtcNow;
             string? username = data.GetProperty("platformInfo").GetProperty("platformUserHandle").GetString();
 
             JsonElement[] segments = data.GetProperty("segments").EnumerateArray().ToArray();
@@ -113,7 +107,7 @@ public static class Parser
                 }
             }
 
-            return new Stats(generics, modes, date!, username!);
+            return new Stats(generics, modes, date, username!);
         }
     }
 }
