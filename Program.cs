@@ -3,35 +3,43 @@ using DSharpPlus.SlashCommands;
 
 namespace RLStatus;
 
-public class Program
+public static class Program
 {
     static async Task Main()
     {
+        // ERROR HANDLING TODO: Everywhere where a variable is nullable
+        // add a check to make sure it isnt null
+        // use try catch statements more
         await StartBot();
         await Task.Delay(-1);
-
     }
 
     static async Task StartBot()
     {
         string _token = Loader.DiscordToken();
-        DiscordConfiguration conf = new() 
+        DiscordConfiguration conf = new()
         {
             Token = _token,
-                  TokenType = TokenType.Bot,
-                  Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents,
+            TokenType = TokenType.Bot,
+            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents,
         };
 
         DiscordClient client = new(conf);
 
-        var slashCMDS = client.UseSlashCommands();
+        SlashCommandsExtension slashCmds = client.UseSlashCommands();
 
-        slashCMDS.RegisterCommands<SlashCommands>();
-        SlashCommands.StoreClient(client);
+        slashCmds.RegisterCommands<SlashCommands>();
+        SlashCommands.SetSlashCommandExtension(slashCmds);
 
         await client.ConnectAsync();
 
-        client.Ready += EventHandlers.OnReady;
         client.MessageCreated += EventHandlers.OnMessage;
+        client.Ready += EventHandlers.OnReady;
+
+        slashCmds.SlashCommandErrored += EventHandlers.OnSlashCommandError;
+        slashCmds.ContextMenuErrored += EventHandlers.OnContextMenuError;
+        slashCmds.AutocompleteErrored += EventHandlers.OnAutocompleteError;
+
+        slashCmds.SlashCommandInvoked += EventHandlers.OnSlashCommandInvoke;
     }
 }
