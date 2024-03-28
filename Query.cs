@@ -10,7 +10,7 @@ public sealed class Query : IDisposable
     private static Object lockObject = new();
     private const string _rl_api = "https://api.tracker.gg/api/v2/rocket-league/standard/profile/";
     private static string _steam_api = "http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/"
-                                        + $"?key={Loader.SteamWebAPI()}&vanityurl=";
+                                        + $"?key={Loader.SteamWebToken}&vanityurl=";
 
     private static WebDriver? driver;
     private static FirefoxOptions? opts;

@@ -7,6 +7,7 @@ public static class Program
 {
     static async Task Main()
     {
+        Loader.Initialize(); // Always run first
         // ERROR HANDLING TODO: Everywhere where a variable is nullable
         // add a check to make sure it isnt null
         // use try catch statements more
@@ -16,7 +17,7 @@ public static class Program
 
     static async Task StartBot()
     {
-        string _token = Loader.DiscordToken();
+        string _token = Loader.DiscordToken;
         DiscordConfiguration conf = new()
         {
             Token = _token,

@@ -1,14 +1,25 @@
+using System.Text.Json;
+
 namespace RLStatus;
 
 public static class Loader
 {
-    public static string DiscordToken(string path = "tokens.txt")
-    {
-        return File.ReadAllLines(path)[0].Trim();
-    }
+    public static Dictionary<Ranks, string> RankIcons = new();
+    public static string DiscordToken = string.Empty;
+    public static string SteamWebToken = string.Empty;
 
-    public static string SteamWebAPI(string path = "tokens.txt")
+    public static void Initialize(string path = "config.json")
     {
-        return File.ReadAllLines(path)[1].Trim();
+        using (JsonDocument doc = JsonDocument.Parse(File.ReadAllText(path)))
+        {
+            JsonElement root = doc.RootElement;
+            DiscordToken = root.GetProperty("DiscordToken").GetString()!;
+            SteamWebToken = root.GetProperty("SteamWebToken").GetString()!;
+            JsonElement iconUrls = root.GetProperty("IconUrls");
+            foreach (Ranks rank in Enum.GetValues(typeof(Ranks)))
+            {
+                RankIcons.Add(rank, iconUrls.GetProperty(rank.ToString()).GetString()!);
+            }
+        }
     }
 }
