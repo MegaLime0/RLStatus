@@ -2,6 +2,7 @@ namespace RLStatus;
 
 public enum Ranks
 {
+    Unranked,
     Bronze1,
     Bronze2,
     Bronze3,
