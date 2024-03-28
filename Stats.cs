@@ -21,36 +21,25 @@ public class Stats
     public uint Assists { get; private set; }
     public uint MVPs { get; private set; }
     public uint Shots { get; private set; }
-    public uint RewardLevel { get; private set; }
+    public Ranks RewardLevel { get; private set; }
     public uint ProfileViews { get; private set; }
 
     public bool Success { get; private set; }
     public DateTime Date { get; private set; }
-
-    private void AssignGeneric(JsonElement genericStats)
-    {
-        Wins = genericStats.GetProperty("wins").GetProperty("value").GetUInt32();
-        Goals = genericStats.GetProperty("goals").GetProperty("value").GetUInt32();
-        Saves = genericStats.GetProperty("saves").GetProperty("value").GetUInt32();
-        Assists = genericStats.GetProperty("assists").GetProperty("value").GetUInt32();
-        MVPs = genericStats.GetProperty("mVPs").GetProperty("value").GetUInt32();
-        Shots = genericStats.GetProperty("shots").GetProperty("value").GetUInt32();
-        RewardLevel = genericStats.GetProperty("seasonRewardLevel").GetProperty("value").GetUInt32();
-    }
 
     public Stats(Dictionary<GeneralStatTypes, uint> generics,
             Dictionary<Playlists, Mode> modes,
             DateTime date,
             string username)
     {
-        Wins = generics.GetValueOrDefault(GeneralStatTypes.Wins, (uint) 0);
-        Goals = generics.GetValueOrDefault(GeneralStatTypes.Goals, (uint) 0);
-        Saves = generics.GetValueOrDefault(GeneralStatTypes.Saves, (uint) 0);
-        Assists = generics.GetValueOrDefault(GeneralStatTypes.Assists, (uint) 0);
-        MVPs = generics.GetValueOrDefault(GeneralStatTypes.MVPs, (uint) 0);
-        Shots = generics.GetValueOrDefault(GeneralStatTypes.Shots, (uint) 0);
-        RewardLevel = generics.GetValueOrDefault(GeneralStatTypes.RewardLevel, (uint) 0);
-        ProfileViews = generics.GetValueOrDefault(GeneralStatTypes.ProfileViews, (uint) 0);
+        Wins = generics.GetValueOrDefault(GeneralStatTypes.Wins, (uint)0);
+        Goals = generics.GetValueOrDefault(GeneralStatTypes.Goals, (uint)0);
+        Saves = generics.GetValueOrDefault(GeneralStatTypes.Saves, (uint)0);
+        Assists = generics.GetValueOrDefault(GeneralStatTypes.Assists, (uint)0);
+        MVPs = generics.GetValueOrDefault(GeneralStatTypes.MVPs, (uint)0);
+        Shots = generics.GetValueOrDefault(GeneralStatTypes.Shots, (uint)0);
+        RewardLevel = (Ranks)(generics.GetValueOrDefault(GeneralStatTypes.RewardLevel, (uint)0) * 3 - 2);
+        ProfileViews = generics.GetValueOrDefault(GeneralStatTypes.ProfileViews, (uint)0);
 
         Casual = modes.GetValueOrDefault(Playlists.Casual);
         Vs1 = modes.GetValueOrDefault(Playlists.Vs1);

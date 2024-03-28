@@ -44,7 +44,7 @@ public sealed class Database
                         Assists INTEGER DEFAULT 0,
                         MVPs INTEGER DEFAULT 0,
                         Shots INTEGER DEFAULT 0,
-                        RewardLevel INTEGER DEFAULT 0,
+                        RewardLevel TEXT,
                         ProfileViews INTEGER DEFAULT 0,
                         UserName TEXT,
                         FOREIGN KEY (DiscordId) REFERENCES DiscordUsers(DiscordId)
@@ -110,7 +110,7 @@ public sealed class Database
             cmd.Parameters.AddWithValue("@Assists", stats.Assists);
             cmd.Parameters.AddWithValue("@MVPs", stats.MVPs);
             cmd.Parameters.AddWithValue("@Shots", stats.Shots);
-            cmd.Parameters.AddWithValue("@RewardLevel", stats.RewardLevel);
+            cmd.Parameters.AddWithValue("@RewardLevel", stats.RewardLevel.ToString());
             cmd.Parameters.AddWithValue("@ProfileViews", stats.ProfileViews);
             cmd.Parameters.AddWithValue("@UserName", stats.Username);
 
