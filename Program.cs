@@ -27,19 +27,18 @@ public static class Program
 
         DiscordClient client = new(conf);
 
-        SlashCommandsExtension slashCmds = client.UseSlashCommands();
-
+        var slashCmds = client.UseSlashCommands();
         slashCmds.RegisterCommands<SlashCommands>();
-
-        await client.ConnectAsync();
-
-        client.MessageCreated += EventHandlers.OnMessage;
-        client.Ready += EventHandlers.OnReady;
 
         slashCmds.SlashCommandErrored += EventHandlers.OnSlashCommandError;
         slashCmds.ContextMenuErrored += EventHandlers.OnContextMenuError;
         slashCmds.AutocompleteErrored += EventHandlers.OnAutocompleteError;
 
         slashCmds.SlashCommandInvoked += EventHandlers.OnSlashCommandInvoke;
+
+        client.MessageCreated += EventHandlers.OnMessage;
+        client.Ready += EventHandlers.OnReady;
+
+        await client.ConnectAsync();
     }
 }

@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace RLStatus;
 
 public class Mode
