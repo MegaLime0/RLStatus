@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace RLStatus;
 
 public class Stats
@@ -38,7 +36,7 @@ public class Stats
         Assists = generics.GetValueOrDefault(GeneralStatTypes.Assists, (uint)0);
         MVPs = generics.GetValueOrDefault(GeneralStatTypes.MVPs, (uint)0);
         Shots = generics.GetValueOrDefault(GeneralStatTypes.Shots, (uint)0);
-        RewardLevel = (Ranks)(generics.GetValueOrDefault(GeneralStatTypes.RewardLevel, (uint)0) * 3 - 2);
+        RewardLevel = (Ranks)Math.Clamp(generics.GetValueOrDefault(GeneralStatTypes.RewardLevel, (uint)0) * 3 - 1, 0, 22);
         ProfileViews = generics.GetValueOrDefault(GeneralStatTypes.ProfileViews, (uint)0);
 
         Casual = modes.GetValueOrDefault(Playlists.Casual);
