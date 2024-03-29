@@ -57,10 +57,9 @@ public class SlashCommands : ApplicationCommandModule
 
         await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-        await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Stats for {ctx.User}")); // Temporary
+        // await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Stats for {ctx.User}")); // Temporary
 
-        Stats? stats = await db.RetreiveStats(ctx.User.Id, query);
-
+        await ctx.EditResponseAsync(await Messages.OverallStats(db, ctx.User.Id, query));
         // TODO: Send Messages.OverallStats() or Messages.ModeStats()
     }
 
@@ -68,7 +67,7 @@ public class SlashCommands : ApplicationCommandModule
     public async Task Help(InteractionContext ctx)
     {
         await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-        DiscordWebhookBuilder webhook = Messages.Help(slash!);
+        DiscordWebhookBuilder webhook = Messages.Help(ctx.Client.GetSlashCommands());
         await ctx.EditResponseAsync(webhook);
     }
 }

@@ -30,7 +30,6 @@ public static class Program
         SlashCommandsExtension slashCmds = client.UseSlashCommands();
 
         slashCmds.RegisterCommands<SlashCommands>();
-        SlashCommands.SetSlashCommandExtension(slashCmds);
 
         await client.ConnectAsync();
 
