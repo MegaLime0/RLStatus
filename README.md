@@ -1,5 +1,5 @@
 # RLStatus
-| ![RlStatus demonstration][demo/preview.gif] |
+| ![RlStatus demonstration][https://github.com/MegaLime0/RLStatus/blob/e9326cd06f0ba47e9f623dcdd34afe3c6cf017f5/demo/preview.gif] |
 | :---: |
 | A quick demo of the bot |
 
