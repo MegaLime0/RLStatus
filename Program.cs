@@ -36,8 +36,9 @@ public static class Program
 
         slashCmds.SlashCommandInvoked += EventHandlers.OnSlashCommandInvoke;
 
-        client.MessageCreated += EventHandlers.OnMessage;
         client.Ready += EventHandlers.OnReady;
+        client.MessageCreated += EventHandlers.OnMessage;
+        client.ComponentInteractionCreated += EventHandlers.OnButtonClick;
 
         await client.ConnectAsync();
     }

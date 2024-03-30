@@ -1,4 +1,5 @@
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
@@ -22,7 +23,8 @@ static public class EventHandlers
             await args.Channel.SendMessageAsync("T-T");
         }
     }
-    
+
+    // ---------- DEBUGGING ----------
     static public Task OnSlashCommandError(SlashCommandsExtension slash, SlashCommandErrorEventArgs args)
     {
         Console.WriteLine($"Slash Command Errored: {args.Exception.Message}");
@@ -45,5 +47,32 @@ static public class EventHandlers
     {
         Console.WriteLine($"{args.Context.CommandName}");
         return Task.CompletedTask;
+    }
+    // ------- DEBUGGING END ----------
+
+    static public async Task OnButtonClick(DiscordClient client, ComponentInteractionCreateEventArgs args)
+    {
+        string[] split = args.Id.Split("_");
+        Enum.TryParse(split[0], out StatType statType);
+        ulong statOwnerId = Convert.ToUInt64(split[1]);
+
+        if (statOwnerId != args.User.Id)
+        {
+            await args.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder()
+                    .WithContent("This isnt your menu bro"));
+            return;
+        }
+
+        var response = await Messages.InteractionStats(Database.Instance, statOwnerId, Query.Instance, statType);
+        await args.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, response);
+
+        return;
+        // Temp
+        // await args.Interaction.CreateResponseAsync(
+        //         InteractionResponseType.UpdateMessage,
+        //         new DiscordInteractionResponseBuilder()
+        //             .WithContent("BUTTONS BEGONE!")
+        //         );
     }
 }
