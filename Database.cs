@@ -127,10 +127,46 @@ public sealed class Database
     {
         using (SqliteCommand cmd = connection.CreateCommand())
         {
+            // TODO IMPORTANT! Duplicate modestat entries when mode values update
+            // check for modestat existance
             cmd.CommandText = @"
-                 REPLACE INTO ModeStats (DiscordId, Playlist, Rank, MMR, Division)
-                 VALUES (@DiscordId, @Playlist, @Rank, @MMR, @Division);
-                 ";
+                SELECT COUNT(1) FROM ModeStats WHERE DiscordId = @DiscordId AND Playlist = @Playlist;
+                ";
+
+            cmd.Parameters.AddWithValue("@DiscordId", userId);
+            cmd.Parameters.AddWithValue("@Playlist", mode.Playlist);
+
+            bool rowsExist;
+            using (var reader = cmd.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    rowsExist = reader.GetInt32(0) > 0;
+                }
+                else
+                {
+                    rowsExist = false;
+                }
+            }
+
+            if (rowsExist)
+            {
+                cmd.CommandText = @"
+                        UPDATE ModeStats
+                        SET Rank = @Rank, MMR = @MMR, Division = @Division
+                        WHERE DiscordId = @DiscordId AND Playlist = @Playlist;
+                        ";
+            }
+            else
+            {
+                cmd.CommandText = @"
+                        INSERT INTO ModeStats (DiscordId, Playlist, Rank, MMR, Division)
+                        VALUES (@DiscordId, @Playlist, @Rank, @MMR, @Division);
+                    ";
+            }
+
+            cmd.Parameters.Clear();
+
             cmd.Parameters.AddWithValue("@DiscordId", userId);
             cmd.Parameters.AddWithValue("@Playlist", mode.Playlist);
             cmd.Parameters.AddWithValue("@Rank", mode.Rank);
