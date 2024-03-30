@@ -34,8 +34,7 @@ public sealed class Database
                         Platform TEXT
                     );
                 CREATE TABLE IF NOT EXISTS Stats (
-                        StatId INTEGER PRIMARY KEY AUTOINCREMENT,
-                        DiscordId INTEGER NOT NULL,
+                        DiscordId INTEGER PRIMARY KEY,
                         CacheDate INTEGER NOT NULL,
                         Wins INTEGER DEFAULT 0,
                         Goals INTEGER DEFAULT 0,
@@ -43,19 +42,19 @@ public sealed class Database
                         Assists INTEGER DEFAULT 0,
                         MVPs INTEGER DEFAULT 0,
                         Shots INTEGER DEFAULT 0,
-                        RewardLevel TEXT,
+                        RewardLevel INTEGER DEFAULT 0,
                         ProfileViews INTEGER DEFAULT 0,
                         UserName TEXT,
                         FOREIGN KEY (DiscordId) REFERENCES DiscordUsers(DiscordId)
                     );
                 CREATE TABLE IF NOT EXISTS ModeStats (
                         ModeStatId INTEGER PRIMARY KEY AUTOINCREMENT,
-                        StatId INTEGER NOT NULL,
+                        DiscordId INTEGER NOT NULL,
                         Playlist INTEGER,
                         Rank INTEGER,
                         MMR INTEGER,
                         Division INTEGER,
-                        FOREIGN KEY (StatId) REFERENCES Stats(StatId)
+                        FOREIGN KEY (DiscordId) REFERENCES Stats(DiscordId)
                     );
                 ";
             cmd.ExecuteNonQuery();
@@ -93,13 +92,11 @@ public sealed class Database
 
     public void CacheStats(Stats stats, ulong userId)
     {
-        long statId;
         using (SqliteCommand cmd = connection.CreateCommand())
         {
             cmd.CommandText = @"
-                INSERT INTO Stats (DiscordId, CacheDate, Wins, Goals, Saves, Assists, MVPs, Shots, RewardLevel, ProfileViews, UserName)
-                VALUES (@DiscordId, @CacheDate, @Wins, @Goals, @Saves, @Assists, @MVPs, @Shots, @RewardLevel, @ProfileViews, @UserName)
-                RETURNING StatId;
+                REPLACE INTO Stats (DiscordId, CacheDate, Wins, Goals, Saves, Assists, MVPs, Shots, RewardLevel, ProfileViews, UserName)
+                VALUES (@DiscordId, @CacheDate, @Wins, @Goals, @Saves, @Assists, @MVPs, @Shots, @RewardLevel, @ProfileViews, @UserName);
                 ";
             cmd.Parameters.AddWithValue("@DiscordId", userId);
             cmd.Parameters.AddWithValue("@CacheDate", stats.Date.ToBinary());
@@ -109,32 +106,32 @@ public sealed class Database
             cmd.Parameters.AddWithValue("@Assists", stats.Assists);
             cmd.Parameters.AddWithValue("@MVPs", stats.MVPs);
             cmd.Parameters.AddWithValue("@Shots", stats.Shots);
-            cmd.Parameters.AddWithValue("@RewardLevel", stats.RewardLevel.ToString());
+            cmd.Parameters.AddWithValue("@RewardLevel", ((uint)stats.RewardLevel + 1) / 3);
             cmd.Parameters.AddWithValue("@ProfileViews", stats.ProfileViews);
             cmd.Parameters.AddWithValue("@UserName", stats.Username);
 
-            statId = (long)cmd.ExecuteScalar()!;
+            cmd.ExecuteNonQuery();
         }
 
-        CacheModeStats(stats.Casual!, statId);
-        CacheModeStats(stats.Vs1!, statId);
-        CacheModeStats(stats.Vs2!, statId);
-        CacheModeStats(stats.Vs3!, statId);
-        CacheModeStats(stats.Dropshot!, statId);
-        CacheModeStats(stats.Hoops!, statId);
-        CacheModeStats(stats.Rumble!, statId);
-        CacheModeStats(stats.Snowday!, statId);
+        CacheModeStats(stats.Casual!, userId);
+        CacheModeStats(stats.Vs1!, userId);
+        CacheModeStats(stats.Vs2!, userId);
+        CacheModeStats(stats.Vs3!, userId);
+        CacheModeStats(stats.Dropshot!, userId);
+        CacheModeStats(stats.Hoops!, userId);
+        CacheModeStats(stats.Rumble!, userId);
+        CacheModeStats(stats.Snowday!, userId);
     }
 
-    private void CacheModeStats(Mode mode, long statId)
+    private void CacheModeStats(Mode mode, ulong userId)
     {
         using (SqliteCommand cmd = connection.CreateCommand())
         {
             cmd.CommandText = @"
-                 INSERT INTO ModeStats (StatId, Playlist, Rank, MMR, Division)
-                 VALUES (@StatId, @Playlist, @Rank, @MMR, @Division);
+                 REPLACE INTO ModeStats (DiscordId, Playlist, Rank, MMR, Division)
+                 VALUES (@DiscordId, @Playlist, @Rank, @MMR, @Division);
                  ";
-            cmd.Parameters.AddWithValue("@StatId", statId);
+            cmd.Parameters.AddWithValue("@DiscordId", userId);
             cmd.Parameters.AddWithValue("@Playlist", mode.Playlist);
             cmd.Parameters.AddWithValue("@Rank", mode.Rank);
             cmd.Parameters.AddWithValue("@MMR", mode.MMR);
@@ -223,8 +220,10 @@ public sealed class Database
                 if (reader.Read())
                 {
                     var cacheDate = DateTime.FromBinary(reader.GetInt64(0));
-                    if (cacheDate.AddMinutes(10) <= DateTime.Now)
+                    if (cacheDate.AddMinutes(10) <= DateTime.UtcNow)
                     {
+                        Console.WriteLine(cacheDate.ToLongTimeString());
+                        Console.WriteLine(DateTime.UtcNow.ToLongTimeString());
                         return true;
                     }
                 }
@@ -236,6 +235,7 @@ public sealed class Database
     {
         if (CacheOutdated(userId) || !AccountHasStats(userId))
         {
+            Console.WriteLine($"{userId} didnt have stats");
             (var _username, var _platform) = GetAccount(userId);
             Platforms platform;
             Enum.TryParse(_platform, out platform);
@@ -247,7 +247,7 @@ public sealed class Database
         using (SqliteCommand cmd = connection.CreateCommand())
         {
             cmd.CommandText = @"
-                SELECT StatId, CacheDate, Wins, Goals, Saves, Assists, MVPs, Shots, RewardLevel, ProfileViews, UserName FROM Stats
+                SELECT CacheDate, Wins, Goals, Saves, Assists, MVPs, Shots, RewardLevel, ProfileViews, UserName FROM Stats
                 WHERE DiscordId = @DiscordId;
                 ";
             cmd.Parameters.AddWithValue("@DiscordId", userId);
@@ -260,33 +260,33 @@ public sealed class Database
             {
                 // Not in an if statement, existance of an account should be checked outside the function
                 reader.Read();
-                modes = GetModes(reader.GetInt32(0));
-                date = DateTime.FromBinary(reader.GetInt64(1));
+                modes = GetModes(userId);
+                date = DateTime.FromBinary(reader.GetInt64(0));
 
-                generics.Add(GeneralStatTypes.Wins, (uint)reader.GetInt32(2));
-                generics.Add(GeneralStatTypes.Goals, (uint)reader.GetInt32(3));
-                generics.Add(GeneralStatTypes.Saves, (uint)reader.GetInt32(4));
-                generics.Add(GeneralStatTypes.Assists, (uint)reader.GetInt32(5));
-                generics.Add(GeneralStatTypes.MVPs, (uint)reader.GetInt32(6));
-                generics.Add(GeneralStatTypes.Shots, (uint)reader.GetInt32(7));
-                generics.Add(GeneralStatTypes.RewardLevel, (uint)reader.GetInt32(8));
-                generics.Add(GeneralStatTypes.ProfileViews, (uint)reader.GetInt32(9));
+                generics.Add(GeneralStatTypes.Wins, (uint)reader.GetInt32(1));
+                generics.Add(GeneralStatTypes.Goals, (uint)reader.GetInt32(2));
+                generics.Add(GeneralStatTypes.Saves, (uint)reader.GetInt32(3));
+                generics.Add(GeneralStatTypes.Assists, (uint)reader.GetInt32(4));
+                generics.Add(GeneralStatTypes.MVPs, (uint)reader.GetInt32(5));
+                generics.Add(GeneralStatTypes.Shots, (uint)reader.GetInt32(6));
+                generics.Add(GeneralStatTypes.RewardLevel, (uint)reader.GetInt32(7));
+                generics.Add(GeneralStatTypes.ProfileViews, (uint)reader.GetInt32(8));
 
-                username = reader.GetString(10);
+                username = reader.GetString(9);
             }
             return new Stats(generics, modes, date, username);
         }
     }
 
-    private Dictionary<Playlists, Mode> GetModes(int statId)
+    private Dictionary<Playlists, Mode> GetModes(ulong userid)
     {
         using (SqliteCommand cmd = connection.CreateCommand())
         {
             cmd.CommandText = @"
                 SELECT Playlist, Rank, MMR, Division FROM ModeStats
-                WHERE StatId = @StatId;
+                WHERE DiscordId = @DiscordId;
                 ";
-            cmd.Parameters.AddWithValue("@StatId", statId);
+            cmd.Parameters.AddWithValue("@DiscordId", userid);
 
             Dictionary<Playlists, Mode> modes = new();
             using (var reader = cmd.ExecuteReader())
