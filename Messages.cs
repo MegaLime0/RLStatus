@@ -183,7 +183,7 @@ public static class Messages
                 );
 
         embed.AddField(
-                ":gloves: Saves",
+                ":shield: Saves",
                 $"{stats.Saves}",
                 true
                 );
@@ -244,7 +244,69 @@ public static class Messages
 
         embed.Description = $"**{playlistName}**";
 
-        // TODO: Add Mode Stats
+        Mode mode;
+        switch (playlist)
+        {
+            case StatType.Vs1:
+                mode = stats.Vs1!;
+                break;
+            case StatType.Vs2:
+                mode = stats.Vs2!;
+                break;
+            case StatType.Vs3:
+                mode = stats.Vs3!;
+                break;
+            case StatType.Casual:
+                mode = stats.Casual!;
+                break;
+            case StatType.Dropshot:
+                mode = stats.Dropshot!;
+                break;
+            case StatType.Hoops:
+                mode = stats.Hoops!;
+                break;
+            case StatType.Rumble:
+                mode = stats.Rumble!;
+                break;
+            case StatType.Snowday:
+                mode = stats.Snowday!;
+                break;
+            default:
+                mode = new(0, 0, Ranks.Unranked, Playlists.Casual);
+                Console.WriteLine("CASE DEFAULT IN MESSAGES 266");
+                break;
+        }
+
+
+        // Same garbage strat. adds a space before the number
+        string rank = mode.Rank.ToString();
+        lastCharacter = rank[rank.Length - 1];
+        if (Char.IsDigit(lastCharacter))
+        {
+            rank = rank.Replace(lastCharacter, ' ');
+            rank += lastCharacter;
+        }
+
+        embed.AddField(
+                ":trophy: Rank",
+                rank,
+                true
+                );
+
+        embed.AddField(
+                ":bar_chart: MMR",
+                $"{mode.MMR}",
+                true
+                );
+
+        embed.AddField(
+                ":ladder: Division",
+                $"{mode.Division}",
+                true
+                );
+
+        embed.Thumbnail = new() { Url = Loader.RankIcons.GetValueOrDefault(mode.Rank) };
+        // embed.ImageUrl = Loader.RankIcons.GetValueOrDefault(mode.Rank);
 
         return embed;
     }
