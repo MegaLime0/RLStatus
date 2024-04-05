@@ -18,12 +18,13 @@ public static class Program
     static async Task StartBot()
     {
         string _token = Loader.DiscordToken;
-        DiscordConfiguration conf = new()
-        {
-            Token = _token,
-            TokenType = TokenType.Bot,
-            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents,
-        };
+        DiscordConfiguration conf =
+            new()
+            {
+                Token = _token,
+                TokenType = TokenType.Bot,
+                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents,
+            };
 
         DiscordClient client = new(conf);
 

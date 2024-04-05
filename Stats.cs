@@ -25,10 +25,12 @@ public class Stats
     public bool Success { get; private set; }
     public DateTime Date { get; private set; }
 
-    public Stats(Dictionary<GeneralStatTypes, uint> generics,
-            Dictionary<Playlists, Mode> modes,
-            DateTime date,
-            string username)
+    public Stats(
+        Dictionary<GeneralStatTypes, uint> generics,
+        Dictionary<Playlists, Mode> modes,
+        DateTime date,
+        string username
+    )
     {
         Wins = generics.GetValueOrDefault(GeneralStatTypes.Wins, (uint)0);
         Goals = generics.GetValueOrDefault(GeneralStatTypes.Goals, (uint)0);
@@ -36,7 +38,12 @@ public class Stats
         Assists = generics.GetValueOrDefault(GeneralStatTypes.Assists, (uint)0);
         MVPs = generics.GetValueOrDefault(GeneralStatTypes.MVPs, (uint)0);
         Shots = generics.GetValueOrDefault(GeneralStatTypes.Shots, (uint)0);
-        RewardLevel = (Ranks)Math.Clamp(generics.GetValueOrDefault(GeneralStatTypes.RewardLevel, (uint)0) * 3 - 1, 0, 22);
+        RewardLevel = (Ranks)
+            Math.Clamp(
+                generics.GetValueOrDefault(GeneralStatTypes.RewardLevel, (uint)0) * 3 - 1,
+                0,
+                22
+            );
         ProfileViews = generics.GetValueOrDefault(GeneralStatTypes.ProfileViews, (uint)0);
 
         Casual = modes.GetValueOrDefault(Playlists.Casual);

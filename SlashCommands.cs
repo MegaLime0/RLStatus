@@ -1,6 +1,6 @@
 using DSharpPlus;
-using DSharpPlus.SlashCommands;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 
 namespace RLStatus;
 
@@ -10,9 +10,11 @@ public class SlashCommands : ApplicationCommandModule
     static Query query = Query.Instance;
 
     [SlashCommand("setup", "Set your RL account")]
-    public async Task SetAcc(InteractionContext ctx,
+    public async Task SetAcc(
+        InteractionContext ctx,
         [Option("Username", "RL account name")] string username,
-        [Option("Platform", "Select your RL platform")] Platforms platform = Platforms.Epic)
+        [Option("Platform", "Select your RL platform")] Platforms platform = Platforms.Epic
+    )
     {
         await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
@@ -32,12 +34,17 @@ public class SlashCommands : ApplicationCommandModule
 
         db.SaveAccount(username, ctx.User.Id, platform);
 
-        await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Account successfully set up"));
+        await ctx.EditResponseAsync(
+            new DiscordWebhookBuilder().WithContent("Account successfully set up")
+        );
     }
 
     [SlashCommand("stats", "Get your RL stats")]
-    public async Task Stats(InteractionContext ctx,
-        [Option("Stat", "Overall stats or stats for a specific mode")] StatType statType = StatType.Overall)
+    public async Task Stats(
+        InteractionContext ctx,
+        [Option("Stat", "Overall stats or stats for a specific mode")]
+            StatType statType = StatType.Overall
+    )
     {
         await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 

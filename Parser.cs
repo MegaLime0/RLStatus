@@ -8,22 +8,46 @@ public static class Parser
     {
         int mmr = stats.GetProperty("rating").GetProperty("value").GetInt32();
         int div = stats.GetProperty("division").GetProperty("value").GetInt32() + 1;
-        Ranks rnk = (Ranks)(stats.GetProperty("tier").GetProperty("value").GetInt32() - 1);
+        Ranks rnk = (Ranks)(stats.GetProperty("tier").GetProperty("value").GetInt32());
         Mode output = new(mmr, div, rnk, playlist);
 
         return output;
     }
 
-    private static Dictionary<GeneralStatTypes, uint> GetGenerics(JsonElement statsSeg, uint profViews)
+    private static Dictionary<GeneralStatTypes, uint> GetGenerics(
+        JsonElement statsSeg,
+        uint profViews
+    )
     {
         Dictionary<GeneralStatTypes, uint> generics = new();
-        generics.Add(GeneralStatTypes.Wins, statsSeg.GetProperty("wins").GetProperty("value").GetUInt32());
-        generics.Add(GeneralStatTypes.Goals, statsSeg.GetProperty("goals").GetProperty("value").GetUInt32());
-        generics.Add(GeneralStatTypes.Saves, statsSeg.GetProperty("saves").GetProperty("value").GetUInt32());
-        generics.Add(GeneralStatTypes.Assists, statsSeg.GetProperty("assists").GetProperty("value").GetUInt32());
-        generics.Add(GeneralStatTypes.MVPs, statsSeg.GetProperty("mVPs").GetProperty("value").GetUInt32());
-        generics.Add(GeneralStatTypes.Shots, statsSeg.GetProperty("shots").GetProperty("value").GetUInt32());
-        generics.Add(GeneralStatTypes.RewardLevel, statsSeg.GetProperty("seasonRewardLevel").GetProperty("value").GetUInt32());
+        generics.Add(
+            GeneralStatTypes.Wins,
+            statsSeg.GetProperty("wins").GetProperty("value").GetUInt32()
+        );
+        generics.Add(
+            GeneralStatTypes.Goals,
+            statsSeg.GetProperty("goals").GetProperty("value").GetUInt32()
+        );
+        generics.Add(
+            GeneralStatTypes.Saves,
+            statsSeg.GetProperty("saves").GetProperty("value").GetUInt32()
+        );
+        generics.Add(
+            GeneralStatTypes.Assists,
+            statsSeg.GetProperty("assists").GetProperty("value").GetUInt32()
+        );
+        generics.Add(
+            GeneralStatTypes.MVPs,
+            statsSeg.GetProperty("mVPs").GetProperty("value").GetUInt32()
+        );
+        generics.Add(
+            GeneralStatTypes.Shots,
+            statsSeg.GetProperty("shots").GetProperty("value").GetUInt32()
+        );
+        generics.Add(
+            GeneralStatTypes.RewardLevel,
+            statsSeg.GetProperty("seasonRewardLevel").GetProperty("value").GetUInt32()
+        );
         generics.Add(GeneralStatTypes.ProfileViews, profViews);
 
         return generics;
@@ -58,7 +82,9 @@ public static class Parser
 
             uint profViews = data.GetProperty("userInfo").GetProperty("pageviews").GetUInt32();
             DateTime date = DateTime.UtcNow;
-            string? username = data.GetProperty("platformInfo").GetProperty("platformUserHandle").GetString();
+            string? username = data.GetProperty("platformInfo")
+                .GetProperty("platformUserHandle")
+                .GetString();
 
             JsonElement[] segments = data.GetProperty("segments").EnumerateArray().ToArray();
 

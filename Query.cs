@@ -9,8 +9,9 @@ public sealed class Query : IDisposable
     private static Query? instance = null;
     private static Object lockObject = new();
     private const string _rl_api = "https://api.tracker.gg/api/v2/rocket-league/standard/profile/";
-    private static string _steam_api = "http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/"
-                                        + $"?key={Loader.SteamWebToken}&vanityurl=";
+    private static string _steam_api =
+        "http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/"
+        + $"?key={Loader.SteamWebToken}&vanityurl=";
 
     private static WebDriver? driver;
     private static FirefoxOptions? opts;
@@ -20,14 +21,11 @@ public sealed class Query : IDisposable
 
     private Query()
     {
+        client.DefaultRequestHeaders.Add("Accept", "application/json");
         client.DefaultRequestHeaders.Add(
-                "Accept",
-                "application/json"
-                );
-        client.DefaultRequestHeaders.Add(
-                "User-Agent",
-                "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
-                );
+            "User-Agent",
+            "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
+        );
 
         Environment.SetEnvironmentVariable("MOZ_REMOTE_SETTINGS_DEVTOOLS", "1");
 
@@ -76,10 +74,7 @@ public sealed class Query : IDisposable
         JsonElement output;
         using (JsonDocument dez = JsonDocument.Parse(response))
         {
-            output = dez
-                .RootElement
-                .GetProperty("response");
-
+            output = dez.RootElement.GetProperty("response");
 
             int success = output.GetProperty("success").GetInt32();
 
@@ -134,7 +129,7 @@ public sealed class Query : IDisposable
             return false;
         }
 
-        Console.WriteLine($"got response for {identifier}");
+        Console.WriteLine($"got response for {identifier} existance check");
         File.WriteAllText("Debug.json", response);
 
         // If the response is an error
@@ -146,7 +141,11 @@ public sealed class Query : IDisposable
         return true;
     }
 
-    public async Task<Stats?> GetStats(Platforms platform, string identifier, bool currentPage = false)
+    public async Task<Stats?> GetStats(
+        Platforms platform,
+        string identifier,
+        bool currentPage = false
+    )
     {
         if (currentPage)
         {
@@ -208,7 +207,7 @@ public sealed class Query : IDisposable
 
     private string GetCurrentPageSource()
     {
-        lock(lockObject)
+        lock (lockObject)
         {
             return driver!.PageSource;
         }

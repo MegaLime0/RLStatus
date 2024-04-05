@@ -27,7 +27,8 @@ public sealed class Database
     {
         using (SqliteCommand cmd = connection.CreateCommand())
         {
-            cmd.CommandText = @"
+            cmd.CommandText =
+                @"
                 CREATE TABLE IF NOT EXISTS DiscordUsers (
                         DiscordId INTEGER PRIMARY KEY,
                         UserName TEXT,
@@ -78,7 +79,8 @@ public sealed class Database
     {
         using (SqliteCommand cmd = connection.CreateCommand())
         {
-            cmd.CommandText = @"
+            cmd.CommandText =
+                @"
                 INSERT INTO DiscordUsers (DiscordId, UserName, Platform)
                 VALUES (@UserId, @Usr, @Platform)
                 ";
@@ -94,7 +96,8 @@ public sealed class Database
     {
         using (SqliteCommand cmd = connection.CreateCommand())
         {
-            cmd.CommandText = @"
+            cmd.CommandText =
+                @"
                 REPLACE INTO Stats (DiscordId, CacheDate, Wins, Goals, Saves, Assists, MVPs, Shots, RewardLevel, ProfileViews, UserName)
                 VALUES (@DiscordId, @CacheDate, @Wins, @Goals, @Saves, @Assists, @MVPs, @Shots, @RewardLevel, @ProfileViews, @UserName);
                 ";
@@ -129,7 +132,8 @@ public sealed class Database
         {
             // TODO IMPORTANT! Duplicate modestat entries when mode values update
             // check for modestat existance
-            cmd.CommandText = @"
+            cmd.CommandText =
+                @"
                 SELECT COUNT(1) FROM ModeStats WHERE DiscordId = @DiscordId AND Playlist = @Playlist;
                 ";
 
@@ -151,7 +155,8 @@ public sealed class Database
 
             if (rowsExist)
             {
-                cmd.CommandText = @"
+                cmd.CommandText =
+                    @"
                         UPDATE ModeStats
                         SET Rank = @Rank, MMR = @MMR, Division = @Division
                         WHERE DiscordId = @DiscordId AND Playlist = @Playlist;
@@ -159,7 +164,8 @@ public sealed class Database
             }
             else
             {
-                cmd.CommandText = @"
+                cmd.CommandText =
+                    @"
                         INSERT INTO ModeStats (DiscordId, Playlist, Rank, MMR, Division)
                         VALUES (@DiscordId, @Playlist, @Rank, @MMR, @Division);
                     ";
@@ -179,10 +185,12 @@ public sealed class Database
 
     public (string, string) GetAccount(ulong userId)
     {
-        string username, platform;
+        string username,
+            platform;
         using (SqliteCommand cmd = connection.CreateCommand())
         {
-            cmd.CommandText = @"SELECT UserName, Platform FROM DiscordUsers WHERE DiscordId = @DiscordId;";
+            cmd.CommandText =
+                @"SELECT UserName, Platform FROM DiscordUsers WHERE DiscordId = @DiscordId;";
             cmd.Parameters.AddWithValue("@DiscordId", userId);
             using (var reader = cmd.ExecuteReader())
             {
@@ -267,6 +275,7 @@ public sealed class Database
         }
         return false;
     }
+
     public async Task<Stats?> RetreiveStats(ulong userId, Query query)
     {
         if (CacheOutdated(userId) || !AccountHasStats(userId))
@@ -282,7 +291,8 @@ public sealed class Database
 
         using (SqliteCommand cmd = connection.CreateCommand())
         {
-            cmd.CommandText = @"
+            cmd.CommandText =
+                @"
                 SELECT CacheDate, Wins, Goals, Saves, Assists, MVPs, Shots, RewardLevel, ProfileViews, UserName FROM Stats
                 WHERE DiscordId = @DiscordId;
                 ";
@@ -318,7 +328,8 @@ public sealed class Database
     {
         using (SqliteCommand cmd = connection.CreateCommand())
         {
-            cmd.CommandText = @"
+            cmd.CommandText =
+                @"
                 SELECT Playlist, Rank, MMR, Division FROM ModeStats
                 WHERE DiscordId = @DiscordId;
                 ";
